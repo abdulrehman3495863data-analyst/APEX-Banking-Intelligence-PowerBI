@@ -1,13 +1,14 @@
 # 🏦 APEX Banking Intelligence: Executive Financial, Customer & Fraud Risk Suite
 
-* 🔗 **Live Interactive Dashboard:** [Open in Power BI Service](https://powerbi.com)
-* 📜 **DAX Formula Library:** [View All 23 Measures (`DAX_Measures.dax`)](DAX_Measures.dax)
-* 📦 **Power BI Report File:** [Download `APEX Banking Intelligence.pbix`](APEX%20Banking%20Intelligence.pbix)
+### 🔗 Quick Project Links
+* **Live Interactive Dashboard:** [Launch Power BI Service Report](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)
+* **DAX Formula Library:** [View All 23 Custom Measures (`DAX_Measures.dax`)](DAX_Measures.dax)
+* **Power BI Model File:** [Download `APEX Banking Intelligence.pbix`](APEX%20Banking%20Intelligence.pbix)
 
 ---
 
 ## 📌 Executive Summary
-**APEX Banking Intelligence** is an end-to-end Power BI analytics suite engineered for retail banking leadership, credit risk teams, and fraud operations. Built on a normalized **Star Schema** semantic model with a custom dark-mode UI/UX system, the platform audits **$5.78M in cleared transaction volume** across **138,118 transactions** and **2,000 active cardholders**, isolating revenue concentration, Customer Lifetime Value (CLV) cohorts, and real-time card-testing fraud vectors.
+**APEX Banking Intelligence** is an end-to-end Power BI analytics suite engineered for retail banking leadership, credit risk teams, and fraud operations. Built on a normalized **Star Schema** semantic model with a custom dark-mode UI/UX system, the platform audits **$5.78M in cleared transaction volume** across **138,118 transactions** and **2,000 active cardholders**, uncovering revenue concentration, Customer Lifetime Value (CLV) cohorts, and real-time card-testing fraud vectors.
 
 ---
 
@@ -22,34 +23,45 @@
 
 ### 1. Executive Landing & Navigation Hub (`Welcome`)
 Provides stakeholders with direct one-click routing to domain modules, dataset scope transparency (`138,118` transactions, `2,000` cardholders), and interactive slicer orientation.
+
+<br>
+
 ![Welcome Page](01_Welcome.png)
+
+<br>
 
 ---
 
 ### 2. Executive Financial Overview (`Executive Overview`)
 Tracks macro financial health across **6 core KPIs** (`$5.78M` Cleared Volume, `138K` Transactions, `98.38%` EMV Chip Auth, `0.28%` Fraud Rate, `386` Fraudulent Txns, `$170K` Avg CLV) alongside a 3-tier U.S. state footprint map, card brand share, and top merchant cities.
+
+<br>
+
 ![Executive Overview](02_Executive_Overview.png)
+
+<br>
 
 ---
 
 ### 3. Customer Lifecycle & Cohort Intelligence (`Customer Lifecycle`)
 Analyzes **2,000 cardholders** (`1,633` Multi-Card Users, `84.85%` Retention Rate, `15.15%` Churn Rate) across credit score bell-curve distributions, income-tier CLV (`<$50K` vs. `>$100K`), age demographics (`18–25` to `65+`), and merchant category preferences.
+
+<br>
+
 ![Customer Lifecycle](03_Customer_Lifecycle.png)
+
+<br>
 
 ---
 
 ### 4. Fraud & Authorization Risk Operations (`Fraud & Risk`)
 Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.20%` technical glitch rates, featuring **3 dynamic DAX narrative cards**, intraday attack velocity (`Morning`, `Afternoon`, `Evening`, `Night`), U.S. state fraud concentration, and top high-risk MCCs.
+
+<br>
+
 ![Fraud & Risk](04_Fraud_Risk.png)
 
----
-
-## 🏗️ Data Architecture & Engineering
-* **Star Schema Semantic Model:** Separated the central fact table (`transactions_data`) from lookup dimensions (`users_data`, `cards_data`, `mcc_codes`, and `Calendar`) with single-direction `1:*` relationships for optimal VertiPaq compression and sub-second cross-filtering.
-* **VertiPaq DAX Optimization (`3x–5x` Faster):** Refactored row-by-row `FILTER()` table iterators into native `CALCULATE` + `KEEPFILTERS` boolean predicates across **23 production measures** (see [`DAX_Measures.dax`](DAX_Measures.dax)), alongside statistical Z-score anomaly detection and dynamic narrative cards.
-* **Custom Dark-Mode UI/UX System:** Designed a unified `1280x720` dark corporate theme (`#0B1220` canvas with `#38BDF8`, `#818CF8`, and `#10B981` semantic accents) and persistent left-rail navigation for executive readability.
-
-![Semantic Data Model](05_Data_Model.png)
+<br>
 
 ---
 
@@ -67,14 +79,27 @@ Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.2
 
 ---
 
-## 🛠️ Tech Stack & Attribution
+## 🏗️ Data Architecture & Semantic Model
+* **Star Schema Semantic Model:** Separated the central fact table (`transactions_data`) from lookup dimensions (`users_data`, `cards_data`, `mcc_codes`, and `Calendar`) with single-direction `1:*` relationships for optimal VertiPaq compression and sub-second cross-filtering.
+* **VertiPaq DAX Optimization (`3x–5x` Faster):** Refactored row-by-row `FILTER()` table iterators into native `CALCULATE` + `KEEPFILTERS` boolean predicates across **23 production measures**, alongside statistical Z-score anomaly detection and dynamic narrative cards.
 * **Tech Stack:** Microsoft Power BI Desktop & Service • Advanced DAX (23 Measures) • Power Query (M) • Dimensional Modeling (Star Schema) • Custom JSON Theme Engineering
-* **Attribution & Modernization:** Foundational dataset inspired by [Bank365-PowerBI](https://github.com). **Modernized, rebranded, modeled, and refactored for VertiPaq performance by Abdul Rehman.**
+
+<br>
+
+![Semantic Data Model](05_Data_Model.png)
+
+<br>
+
+---
+
+## 🚀 How to Explore
+1. **Interactive Web Demo:** Click **[Launch Power BI Service Report](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)** to filter visuals directly in your browser.
+2. **Local Inspection:** Download [`APEX Banking Intelligence.pbix`](APEX%20Banking%20Intelligence.pbix) and open in **Microsoft Power BI Desktop**, or review the formulas in [`DAX_Measures.dax`](DAX_Measures.dax).
 
 ---
 
 ### 👤 Author
-**Abdul Rehman**  
-* [LinkedIn Profile](https://linkedin.com)
-* [GitHub Portfolio](https://github.com)
-* [Live Power BI Dashboard](https://powerbi.com)
+**Abdul Rehman**
+* **LinkedIn:** [Abdul Rehman](https://www.linkedin.com/in/data-analyst-abdul-rehman/)
+* **GitHub:** [abdulrehman3495863data-analyst](https://github.com/abdulrehman3495863data-analyst)
+* **Live Power BI Dashboard:** [APEX Banking Intelligence Report]((https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9))
