@@ -1,9 +1,9 @@
 # 🏦 APEX Banking Intelligence: Executive Financial, Customer & Fraud Risk Suite
 
 ### 🔗 Quick Project Links
-* **Live Interactive Dashboard:** [Launch Power BI Service Report](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)
-* **DAX Formula Library:** [View All 23 Custom Measures (`DAX_Measures.dax`)](DAX_Measures.dax)
-* **Power BI Model File:** [Download `APEX Banking Intelligence.pbix`](APEX%20Banking%20Intelligence.pbix)
+> [!IMPORTANT]
+> ### 🌐 [▶ CLICK HERE TO LAUNCH LIVE INTERACTIVE POWER BI DASHBOARD](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)
+> *Explore all 4 analytical pages, dynamic DAX risk narratives, and cross-filtered U.S. heatmaps directly in your browser — no installation required.*
 
 ---
 
