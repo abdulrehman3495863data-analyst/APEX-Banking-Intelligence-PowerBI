@@ -1,0 +1,176 @@
+/* ============================================================================
+   APEX BANKING INTELLIGENCE — COMPLETE DAX MEASURE LIBRARY (23 MEASURES)
+   Author: Abdul Rehman (Microsoft Certified: Power BI Data Analyst Associate)
+   ============================================================================ */
+
+// ----------------------------------------------------------------------------
+// 1. CORE VOLUME & ACTIVITY METRICS (Table: transactions_data)
+// ----------------------------------------------------------------------------
+
+Total Transactions = 
+COUNTROWS(transactions_data)
+
+Audited Volume = 
+SUM(transactions_data[amount])
+
+Audited Volume ($K) = 
+DIVIDE(SUM('transactions_data'[amount]), 1000, 0)
+
+Total Transaction Amount = 
+SUM(transactions_data[amount])
+
+Active Users = 
+VAR LatestTxnDate = CALCULATE(MAX(transactions_data[date]), ALLSELECTED(transactions_data))
+VAR WindowStart = LatestTxnDate - 90
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(transactions_data[client_id]),
+    KEEPFILTERS(transactions_data[date] >= WindowStart)
+)
+
+EMV Chip Auth = 
+VAR ChipTxn =
+    CALCULATE(
+        COUNTROWS(transactions_data),
+        transactions_data[use_chip] = "Chip Transaction"
+    )
+VAR CleanChipTxn =
+    CALCULATE(
+        COUNTROWS(transactions_data),
+        transactions_data[use_chip] = "Chip Transaction",
+        KEEPFILTERS(transactions_data[errors] = "No Error")
+    )
+RETURN
+DIVIDE(CleanChipTxn, ChipTxn, 0)
+
+
+// ----------------------------------------------------------------------------
+// 2. FRAUD, RISK & AUTHORIZATION METRICS (Table: transactions_data)
+// ----------------------------------------------------------------------------
+
+Fraudulent Transactions = 
+CALCULATE(
+    [Total Transactions],
+    KEEPFILTERS(transactions_data[errors] IN {"Bad PIN", "Bad PIN,Insufficient Balance", "Bad PIN,Technical Glitch"})
+)
+
+Fraud Rate = 
+DIVIDE([Fraudulent Transactions], [Total Transactions], 0)
+
+Technical Glitch Rate = 
+VAR GlitchTxn =
+    CALCULATE(
+        [Total Transactions],
+        KEEPFILTERS(transactions_data[errors] = "Technical Glitch")
+    )
+RETURN
+DIVIDE(GlitchTxn, [Total Transactions], 0)
+
+Card-Testing Index = 
+ROUND(([Fraud Rate] * 10000) * 0.83, 1)
+
+Peak Monthly Fraud Z-Score = 
+VAR MonthlyStats =
+    ADDCOLUMNS(
+        ALLSELECTED('Calendar'[Month Name]),
+        "@Rate", [Fraud Rate]
+    )
+VAR MeanRate = AVERAGEX(MonthlyStats, [@Rate])
+VAR StdRate = STDEVX.P(MonthlyStats, [@Rate])
+VAR PeakRate = MAXX(MonthlyStats, [@Rate])
+RETURN
+IF(StdRate > 0, DIVIDE(PeakRate - MeanRate, StdRate, 0), 0)
+
+Risk Status = 
+IF([Fraud Rate] > 0.005, "CRITICAL ALERT", IF([Fraud Rate] > 0.002, "ELEVATED WATCH", "CONTAINED"))
+
+
+// ----------------------------------------------------------------------------
+// 3. DYNAMIC EXECUTIVE NARRATIVE INSIGHTS (Table: transactions_data)
+// ----------------------------------------------------------------------------
+
+Insight 1 Card Probing = 
+VAR PinEvents = CALCULATE(COUNTROWS('transactions_data'), CONTAINSSTRING('transactions_data'[errors], "Bad PIN"))
+VAR PinRate = FORMAT([Fraud Rate], "0.00%")
+VAR TopWindow = TOPN(1, VALUES('transactions_data'[Time of Day]), CALCULATE(COUNTROWS('transactions_data'), CONTAINSSTRING('transactions_data'[errors], "Bad PIN")), DESC)
+VAR WindowName = CONCATENATEX(TopWindow, 'transactions_data'[Time of Day], "/")
+RETURN
+IF(
+    PinEvents = 0,
+    "No Bad-PIN failures in the current selection.",
+    "Bad-PIN related probing totals " & FORMAT(PinEvents, "#,##0") & " events (" & PinRate & " Fraud rate), peaking in " & WindowName & " windows—flagging automated card-testing."
+)
+
+Insight 2 MCC Concentration = 
+VAR TopMCC = TOPN(1, ALLSELECTED('mcc_codes'[Description]), [Fraud Rate], DESC, 'mcc_codes'[Description], ASC)
+VAR MCCName = CONCATENATEX(TopMCC, 'mcc_codes'[Description], ", ")
+VAR TopRate = MAXX(TopMCC, [Fraud Rate])
+VAR Mult = DIVIDE(TopRate, [Fraud Rate], 1)
+RETURN
+IF(
+    TopRate = 0,
+    "No confirmed fraud exposure by merchant category in the current selection.",
+    MCCName & " leads fraud exposure at " & FORMAT(TopRate, "0.00%") & " (" & FORMAT(Mult, "0.0") & "x portfolio baseline), warranting step-up 3DS verification."
+)
+
+Insight 3 EMV Defense = 
+VAR ChipPct = FORMAT([EMV Chip Auth], "0.00%")
+VAR Vol = FORMAT([Audited Volume], "$#,##0.00")
+VAR FraudCnt = FORMAT([Fraudulent Transactions], "#,##0")
+RETURN
+"EMV chip transactions maintain a " & ChipPct & " clean approval rate across " & Vol & " volume, isolating confirmed fraud to " & FraudCnt & " events vs. legacy swipe channels."
+
+
+// ----------------------------------------------------------------------------
+// 4. CUSTOMER LIFECYCLE, RETENTION & CLV METRICS (Table: users_data)
+// ----------------------------------------------------------------------------
+
+Total Users = 
+DISTINCTCOUNT(users_data[id])
+
+Multi-Card Users = 
+CALCULATE(
+    DISTINCTCOUNT(cards_data[client_id]),
+    cards_data[num_cards_issued] >= 2
+)
+
+Tenure in Years = 
+AVERAGEX(
+    VALUES(users_data[id]),
+    VAR UserFirstTxn =
+        CALCULATE(
+            MIN(transactions_data[date]),
+            ALLEXCEPT(users_data, users_data[id])
+        )
+    RETURN
+    DIVIDE(DATEDIFF(UserFirstTxn, TODAY(), DAY), 365, 0)
+)
+
+Customer Lifetime Value = 
+DIVIDE(
+    [Total Transaction Amount],
+    DISTINCTCOUNT(users_data[id]),
+    0
+) * 12 * [Tenure in Years]
+
+Avg CLV = 
+[Customer Lifetime Value]
+
+Churned Users = 
+CALCULATE(
+    COUNTROWS(users_data),
+    users_data[Is Inactive] = 1
+)
+
+Churn Rate = 
+DIVIDE([Churned Users], [Total Users], 0)
+
+Retention Rate = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(users_data),
+        users_data[Is Inactive] = 0
+    ),
+    [Total Users],
+    0
+)
