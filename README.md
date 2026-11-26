@@ -107,7 +107,7 @@ Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.2
 ---
 
 ## 📝 Dataset & Project Scope
-Built on a public retail banking transaction dataset (`138,118` authorizations, `2,000` cardholders, and `5` relational entities). **The Star Schema data model, 23 VertiPaq-optimized DAX measures, dynamic risk narratives, and 4-page dark corporate UI/UX system were fully engineered and implemented by Abdul Rehman.**
+Built on a public retail banking transaction dataset (`138,118` authorizations, `2,000` cardholders, and `5` relational entities). **The Star Schema data model, 23 VertiPaq-optimized DAX measures, dynamic risk narratives, and 4-page dark corporate UI/UX system (developed with AI-assisted JSON theme prototyping) were architected and implemented by Abdul Rehman.**
 
 
 ---
