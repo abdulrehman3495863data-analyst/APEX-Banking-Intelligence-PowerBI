@@ -65,24 +65,18 @@ Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.2
 
 ---
 
-## 💡 Key Analytical Findings & Strategic Recommendations
-* **EMV Chip Security Impact:** `98.38%` of cleared volume runs through EMV chip transactions, isolating confirmed fraud (`386` events) away from physical chip channels.
-* **Intraday Card-Testing Vector (`Afternoon` Peak):** Bad-PIN probing (`16.69%` of authorization errors) peaks during afternoon windows (`23.2` Card-Testing Index, `+2.67` Z-Score), warranting real-time velocity throttling after 3 consecutive PIN failures.
-* **High-Risk Merchant Categories (MCCs):** *Antique Shops* (`1.72%` fraud rate—`6.2x` portfolio baseline), *Cosmetic Stores* (`1.39%`), and *Amusement Parks* (`1.35%`) exhibit disproportionate fraud exposure, recommending mandatory 3DS/OTP step-up authentication.
-* **Authorization Friction & Retention (`15.15%` Churn):** *Insufficient Balance* (`70.1%`) and *Bad PIN* (`16.69%`) account for `86.8%` of transaction declines, highlighting opportunities for automated low-balance push alerts and second-card cross-sell campaigns for single-card cohorts.
-
----
-
-## 🛡️ Data Governance & Enterprise Remediation
-* **Refund & Chargeback Netting:** Raw signed amounts (`amount < 0`) should be separated into `Gross_Spend` and `Refund_Volume` columns in production ETL pipelines to prevent understating gross interchange volume.
-* **Referential Integrity & Fraud Tagging:** Orphaned keys should map to an `"Unknown (-1)"` surrogate member, and real-time `Bad PIN` proxies should join downstream `TC40`/`SAFE` chargeback feeds in a Medallion Lakehouse architecture.
-
----
-
-## 🏗️ Data Architecture & Semantic Model
-* **Star Schema Semantic Model:** Separated the central fact table (`transactions_data`) from lookup dimensions (`users_data`, `cards_data`, `mcc_codes`, and `Calendar`) with single-direction `1:*` relationships for optimal VertiPaq compression and sub-second cross-filtering.
-* **VertiPaq DAX Optimization (`3x–5x` Faster):** Refactored row-by-row `FILTER()` table iterators into native `CALCULATE` + `KEEPFILTERS` boolean predicates across **23 production measures**, alongside statistical Z-score anomaly detection and dynamic narrative cards.
-* **Tech Stack:** Microsoft Power BI Desktop & Service • Advanced DAX (23 Measures) • Power Query (M) • Dimensional Modeling (Star Schema) • Custom JSON Theme Engineering
+## ⚙️ How It Was Built (End-to-End Methodology)
+1. **Data Preparation & Cleaning (Power Query M):** Standardized transaction timestamps into intraday windows (`Morning`, `Afternoon`, `Evening`, `Night`), parsed currency strings into numeric types, flagged inactive/churned accounts (`Is Inactive`), and validated foreign-key mappings across all dimension tables.
+2. **Dimensional Modeling (Star Schema):** Structured `transactions_data` as the central fact table linked via single-direction `1:*` relationships to `users_data`, `cards_data`, `mcc_codes`, and a custom `Calendar` dimension—eliminating bidirectional filter ambiguity.
+3. **DAX Engineering & Performance Optimization:** Built **23 custom measures** (full code in [`DAX_Measures.dax`](DAX_Measures.dax)) using `CALCULATE` + `KEEPFILTERS` instead of slow `FILTER()` table scans, delivering **3x–5x faster** visual rendering:
+   ```dax
+   EMV Chip Auth = 
+   VAR ChipTxn = CALCULATE(COUNTROWS(transactions_data), transactions_data[use_chip] = "Chip Transaction")
+   VAR CleanChipTxn = CALCULATE(COUNTROWS(transactions_data), transactions_data[use_chip] = "Chip Transaction", KEEPFILTERS(transactions_data[errors] = "No Error"))
+   RETURN
+   DIVIDE(CleanChipTxn, ChipTxn, 0)
+   ```
+4. **Executive UI/UX Design System:** Engineered a `1280x720` dark corporate canvas (`#0B1220` background with `#38BDF8`, `#818CF8`, and `#10B981` semantic accents) featuring an app-style left navigation rail and zero-clutter KPI cards.
 
 <br>
 
@@ -92,9 +86,29 @@ Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.2
 
 ---
 
+## 💡 Key Analytical Findings & Strategic Recommendations
+* **EMV Chip Security Impact:** `98.38%` of cleared volume runs through EMV chip transactions, isolating confirmed fraud (`386` events) away from physical chip channels.
+* **Intraday Card-Testing Vector (`Afternoon` Peak):** Bad-PIN probing (`16.69%` of authorization errors) peaks during afternoon windows (`23.2` Card-Testing Index, `+2.67` Z-Score), warranting real-time velocity throttling after 3 consecutive PIN failures.
+* **High-Risk Merchant Categories (MCCs):** *Antique Shops* (`1.72%` fraud rate—`6.2x` portfolio baseline), *Cosmetic Stores* (`1.39%`), and *Amusement Parks* (`1.35%`) exhibit disproportionate fraud exposure, recommending mandatory 3DS/OTP step-up authentication.
+* **Authorization Friction & Retention (`15.15%` Churn):** *Insufficient Balance* (`70.1%`) and *Bad PIN* (`16.69%`) account for `86.8%` of transaction declines, highlighting opportunities for automated low-balance push alerts and second-card cross-sell campaigns for single-card cohorts.
+
+---
+
+## 🛡️ Data Quality & Governance Notes
+* **Handling Refunds & Negative Transactions:** Raw transaction logs include negative dollar amounts representing customer refunds and chargeback reversals. In production banking pipelines, these should be separated into dedicated `Gross Spend` and `Refund Volume` columns so refunds do not artificially lower total transaction volume.
+* **Missing Keys & Unknown Categories:** Any transactions with unmatched customer or merchant IDs were isolated during Power Query profiling so they do not distort active cohort averages.
+
+---
+
 ## 🚀 How to Explore
 1. **Interactive Web Demo:** Click **[Launch Power BI Service Report](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)** to filter visuals directly in your browser.
 2. **Local Inspection:** Download [`APEX Banking Intelligence.pbix`](APEX%20Banking%20Intelligence.pbix) and open in **Microsoft Power BI Desktop**, or review the formulas in [`DAX_Measures.dax`](DAX_Measures.dax).
+
+---
+
+## 📝 Dataset & Project Scope
+Built on a public retail banking transaction dataset (`138,118` authorizations, `2,000` cardholders, and `5` relational entities). **The Star Schema data model, 23 VertiPaq-optimized DAX measures, dynamic risk narratives, and 4-page dark corporate UI/UX system were fully engineered and implemented by Abdul Rehman.**
+
 
 ---
 
@@ -102,4 +116,4 @@ Monitors **386 confirmed fraud events** (`0.28%` rate, `+2.67` Z-Score) and `0.2
 **Abdul Rehman**
 * **LinkedIn:** [Abdul Rehman](https://www.linkedin.com/in/data-analyst-abdul-rehman/)
 * **GitHub:** [abdulrehman3495863data-analyst](https://github.com/abdulrehman3495863data-analyst)
-* **Live Power BI Dashboard:** [APEX Banking Intelligence Report]((https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9))
+* **Live Power BI Dashboard:** [APEX Banking Intelligence Report](https://app.powerbi.com/view?r=eyJrIjoiOThmM2M1OWQtZmQ3OC00MTEyLWJiM2QtMDhkNTcxODVkYTcwIiwidCI6ImRhZGQ2NzgxLWE3OTctNGM5MS04ZTNiLTdmNzQ1ZjQ0ZWVmNSJ9)
